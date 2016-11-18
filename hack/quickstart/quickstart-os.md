@@ -40,10 +40,10 @@ Choose an appropriate network for your cluster. It should have a router with Int
 
 ```
 $ openstack network list
-+--------------------------------------+----------+--------------------------------------+
-| ID                                   | Name     | Subnets                              |
-+--------------------------------------+----------+--------------------------------------+
-| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx | network1 | yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy |
++-----------------------+----------+-------------------+
+| ID                    | Name     | Subnets           |
++-----------------------+----------+-------------------+
+| xxxxxxxxxxxxxxxxxxxxx | network1 | yyyyyyyyyyyyyyyyy |
 ...
 ```
 Replace `<K8S_NET_ID>` with the ID or Name you want to use in the below commands.
@@ -51,6 +51,7 @@ Replace `<K8S_NET_ID>` with the ID or Name you want to use in the below commands
 
 ### Launch Nodes
 
+#### Create Port
 First we create a port for our new instance, this is needed so the instance has the public IP address assigned on boot.
 
 ```
@@ -61,18 +62,20 @@ $ openstack port create --network <K8S_NET_ID> k8s-node1-port
 ```
 Make a note of the id for use below in `<K8S_PORT_ID>`
 
-
-Next we will allocate a public IP for the port
+#### Allocate Public IP
+Next we will allocate a Public IP for the port
 
 ```
 $ openstack floating ip list
-+--------------------------------------+---------------------+------------------+--------------------------------------+
-| ID                                   | Floating IP Address | Fixed IP Address | Port                                 |
-+--------------------------------------+---------------------+------------------+--------------------------------------+
-| abcde0000000000000000000000000000000 | 10.100.10.17        | None             | None                                 |
++------------+---------------------+------------------+------+
+| ID         | Floating IP Address | Fixed IP Address | Port |
++------------+---------------------+------------------+------+
+| abcde00000 | 10.100.10.17        | None             | None |
 ```
-If no floating IPs are available and unused then allocate a new IP. Replace public if the name of your floating pool differs.
 Make a note of the ID for `<K8S_PUBLIC_ID>` and the Floating IP Address for `<PUBLIC_IP>`
+
+If no floating IPs are available and unused then allocate a new IP. Replace public if the name of your floating pool differs.
+
 
 ```
 $ openstack floating ip create public
@@ -83,11 +86,15 @@ $ openstack floating ip create public
 ```
 Make a note of the ID for `<K8S_PUBLIC_ID>` and the IP for `<PUBLIC_IP>`
 
+#### Associate Public IP to Port
+
 Assign the IP to your port where `<K8S_PORT_ID>` and `<K8S_PUBLIC_ID>` are from the above steps.
 
 ```
 $ neutron floatingip-associate <K8S_PUBLIC_ID> <K8S_PORT_ID>
 ```
+
+#### Create Server
 
 In the command below, replace `<K8S_PORT_ID>` with the port ID from above
 
@@ -100,9 +107,9 @@ Verify the server has completed its build
 ```
 $ openstack server show k8s-node1
 ...
-| addresses                            | network1=4.5.6.7,1.2.3.4                                |
+| addresses                            | network1=4.5.6.7,1.2.3.4 |
 ...
-| status                               | ACTIVE                                                   |
+| status                               | ACTIVE                   |
 ...
 ```
 Verify 'ACTIVE' for status and the `<PUBLIC_IP>` should be listed under addresses.
