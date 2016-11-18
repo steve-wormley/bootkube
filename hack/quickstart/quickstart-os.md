@@ -30,7 +30,8 @@ To find the latest CoreOS alpha/beta/stable images, please see the [CoreOS OpenS
 ```
 $ wget https://stable.release.core-os.net/amd64-usr/current/coreos_production_openstack_image.img.bz2
 $ bunzip2 coreos_production_openstack_image.img.bz2
-$ openstack image create --container-format bare --disk-format qcow2 --file coreos_production_openstack_image.img CoreOS
+$ openstack image create --container-format bare --disk-format qcow2 \
+  --file coreos_production_openstack_image.img CoreOS
 ```
 
 ### Choose a network.
@@ -45,7 +46,7 @@ $ openstack network list
 | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx | network1 | yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy |
 ...
 ```
-Replace K8S_NET_ID with the ID or Name you want to use in the below commands.
+Replace `<K8S_NET_ID>` with the ID or Name you want to use in the below commands.
 
 
 ### Launch Nodes
@@ -58,7 +59,7 @@ $ openstack port create --network <K8S_NET_ID> k8s-node1-port
 | id                    | x |
 ...
 ```
-Make a note of the id for use below in <K8S_PORT_ID>
+Make a note of the id for use below in `<K8S_PORT_ID>`
 
 
 Next we will allocate a public IP for the port
@@ -71,7 +72,7 @@ $ openstack floating ip list
 | abcde0000000000000000000000000000000 | 10.100.10.17        | None             | None                                 |
 ```
 If no floating IPs are available and unused then allocate a new IP. Replace public if the name of your floating pool differs.
-Make a note of the ID for <K8S_PUBLIC_ID> and the Floating IP Address for <PUBLIC_IP>
+Make a note of the ID for `<K8S_PUBLIC_ID>` and the Floating IP Address for `<PUBLIC_IP>`
 
 ```
 $ openstack floating ip create public
@@ -80,15 +81,15 @@ $ openstack floating ip create public
 | id          | z                       |
 ...
 ```
-Make a note of the ID for <K8S_PUBLIC_ID> and the IP for <PUBLIC_IP>
+Make a note of the ID for `<K8S_PUBLIC_ID>` and the IP for `<PUBLIC_IP>`
 
-Assign the IP to your port where <K8S_PORT_ID> and <K8S_PUBLIC_ID> is the information from above
+Assign the IP to your port where `<K8S_PORT_ID>` and `<K8S_PUBLIC_ID>` are from the above steps.
 
 ```
 $ neutron floatingip-associate <K8S_PUBLIC_ID> <K8S_PORT_ID>
 ```
 
-In the command below, replace <K8S_PORT_ID> with the port ID from above
+In the command below, replace `<K8S_PORT_ID>` with the port ID from above
 
 ```
 $ openstack server create --image CoreOS --flavor m1.small --security-group k8s-sg --key-name k8s-key --nic port-id=<K8S_PORT_ID> k8s-node1
@@ -104,7 +105,7 @@ $ openstack server show k8s-node1
 | status                               | ACTIVE                                                   |
 ...
 ```
-Verify 'ACTIVE' for status and the <PUBLIC_IP> should be listed under addresses.
+Verify 'ACTIVE' for status and the `<PUBLIC_IP>` should be listed under addresses.
 
 
 ### Bootstrap Master
